@@ -4,6 +4,7 @@ using System.Collections;
 public class MainThread : MonoBehaviour {
 	public GameObject wallCube;
 	public GameObject floorCube;
+	public GameObject personCapsule;
 
 	// Use this for initialization
 	void Start () {
@@ -32,6 +33,8 @@ public class MainThread : MonoBehaviour {
 		Instantiate(wallCube, new Vector3(1, 1, 4), Quaternion.identity);
 		Instantiate(wallCube, new Vector3(2, 1, 4), Quaternion.identity);
 		Instantiate(wallCube, new Vector3(3, 1, 4), Quaternion.identity);
+		
+		Instantiate(personCapsule, new Vector3(0, 1, 2), Quaternion.identity);
 	}
 	
 	// Update is called once per frame
