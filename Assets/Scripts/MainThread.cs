@@ -5,6 +5,7 @@ public class MainThread : MonoBehaviour {
 	public GameObject WallCube;
 	public GameObject FloorCube;
 	public GameObject HullCube;
+	public GameObject DeleteCube;
 	public GameObject PersonCapsule;
 	
 	private GameObject _activeCursor;
@@ -19,7 +20,9 @@ public class MainThread : MonoBehaviour {
 				}
 				if (value != null) {
 					cursor = (GameObject)Instantiate(value, new Vector3(0, 0, 0), Quaternion.identity);
-					cursor.renderer.material.color = new Color(0, 0, 1f, 0.66f);
+					if (value != DeleteCube) {
+						cursor.renderer.material.color = new Color(0, 0, 1f, 0.66f);
+					}
 				}
 				_activeCursor = value;
 			}
@@ -27,78 +30,25 @@ public class MainThread : MonoBehaviour {
 	}
 	private GameObject cursor = null;
 	
+	private Ship playerShip;
+	
 	// Gui
 	private Rect menuBox;
 	private int selectionGridInt = -1;
 		
-	string[] selectionStrings = {"Clear", "Hull", "Wall"};
+	string[] selectionStrings = {"None", "Clear", "Hull", "Wall"};
 
 	// Use this for initialization
 	void Start () {
-		for (int zz = 0; zz <= 4; zz++) {
-			for (int xx = -3; xx <= 3; xx++) {
-				Instantiate(FloorCube, new Vector3(xx, 0, zz), Quaternion.identity);
-			}
-		}
-		
-		Instantiate(HullCube, new Vector3(-4, 1, -1), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(-3, 1, -1), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(-2, 1, -1), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(-1, 1, -1), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(0, 1, -1), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(1, 1, -1), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(2, 1, -1), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(3, 1, -1), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(4, 1, -1), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(-4, 1, 0), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(4, 1, 0), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(-4, 1, 1), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(4, 1, 1), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(-4, 1, 2), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(4, 1, 2), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(-4, 1, 3), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(4, 1, 3), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(-4, 1, 4), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(4, 1, 4), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(-4, 1, 5), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(-3, 1, 5), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(-2, 1, 5), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(-1, 1, 5), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(0, 1, 5), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(1, 1, 5), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(2, 1, 5), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(3, 1, 5), Quaternion.identity);
-		Instantiate(HullCube, new Vector3(4, 1, 5), Quaternion.identity);
-		
-		Instantiate(WallCube, new Vector3(-3, 1, 0), Quaternion.identity);
-		Instantiate(WallCube, new Vector3(-2, 1, 0), Quaternion.identity);
-		Instantiate(WallCube, new Vector3(-1, 1, 0), Quaternion.identity);
-		Instantiate(WallCube, new Vector3(0, 1, 0), Quaternion.identity);
-		Instantiate(WallCube, new Vector3(1, 1, 0), Quaternion.identity);
-		Instantiate(WallCube, new Vector3(2, 1, 0), Quaternion.identity);
-		Instantiate(WallCube, new Vector3(3, 1, 0), Quaternion.identity);
-		Instantiate(WallCube, new Vector3(-3, 1, 1), Quaternion.identity);
-		Instantiate(WallCube, new Vector3(3, 1, 1), Quaternion.identity);
-		Instantiate(WallCube, new Vector3(-3, 1, 2), Quaternion.identity);
-		Instantiate(WallCube, new Vector3(3, 1, 2), Quaternion.identity);
-		Instantiate(WallCube, new Vector3(-3, 1, 3), Quaternion.identity);
-		Instantiate(WallCube, new Vector3(3, 1, 3), Quaternion.identity);
-		Instantiate(WallCube, new Vector3(-3, 1, 4), Quaternion.identity);
-		Instantiate(WallCube, new Vector3(-2, 1, 4), Quaternion.identity);
-		Instantiate(WallCube, new Vector3(-1, 1, 4), Quaternion.identity);
-		Instantiate(WallCube, new Vector3(0, 1, 4), Quaternion.identity);
-		Instantiate(WallCube, new Vector3(1, 1, 4), Quaternion.identity);
-		Instantiate(WallCube, new Vector3(2, 1, 4), Quaternion.identity);
-		Instantiate(WallCube, new Vector3(3, 1, 4), Quaternion.identity);
-		
-		Instantiate(PersonCapsule, new Vector3(0, 1, 2), Quaternion.identity);
-		
-		// Create the cursor
-		//cursor = (GameObject)Instantiate(WallCube, new Vector3(0, 0, 0), Quaternion.identity);
-		//cursor.renderer.material.color = new Color(0, 0, 1f, 0.66f);
-		
 		// set up the gui
 		menuBox = new Rect(10,10,100,200);
+		
+		playerShip = new Ship(FloorCube, HullCube, WallCube);
+		foreach (Vector3 key in playerShip.Cubes.Keys) {
+			playerShip.Cubes[key].Instance = (GameObject)Instantiate(playerShip.Cubes[key].GameObject, key, Quaternion.identity);
+		}
+		
+		Instantiate(PersonCapsule, new Vector3(0, 1, 2), Quaternion.identity);
 	}
 	
 	// Draw the UI
@@ -106,7 +56,7 @@ public class MainThread : MonoBehaviour {
 		// Make a background box
 		GUI.Box(menuBox, "Build Menu");
 
-		selectionGridInt = GUI.SelectionGrid (new Rect (20, 40, 80, 60), selectionGridInt, selectionStrings, 1);
+		selectionGridInt = GUI.SelectionGrid (new Rect (20, 40, 80, 80), selectionGridInt, selectionStrings, 1);
 		
 		if (selectionGridInt >= 0) {
 			switch (selectionStrings[selectionGridInt]) {
@@ -117,6 +67,9 @@ public class MainThread : MonoBehaviour {
 				ActiveCursor = HullCube;
 				break;
 			case "Clear":
+				ActiveCursor = DeleteCube;
+				break;
+			case "None":
 			default:
 				ActiveCursor = null;
 				break;
@@ -146,38 +99,24 @@ public class MainThread : MonoBehaviour {
 				// Check mouse
 				if (Input.GetMouseButtonUp(0)) // LMB Clicked
 				{
-					// Add object at cursor
-					Instantiate(ActiveCursor, new Vector3(Mathf.Round(pos.x), Mathf.Round(pos.y), Mathf.Round(pos.z)), Quaternion.identity);
-					/*
-					Vector3 cubePoint = new Vector3(hit.point.x, hit.point.y, hit.point.z);
-					cubePoint.y += 0.1f;
-					cubePoint.x -= (cubePoint.x % terrainGenerator.TileWide) - terrainGenerator.TileWide / 2f;
-					cubePoint.z -= (cubePoint.z % terrainGenerator.TileHigh) - terrainGenerator.TileHigh / 2f;
-					
-					Vector2 tilePoint = new Vector2(Mathf.FloorToInt(cubePoint.x / terrainGenerator.TileWide), Mathf.FloorToInt(cubePoint.z / terrainGenerator.TileHigh));
-					Tile tile = null;
-					
-					switch (selectionStrings[selectionGridInt]) {
-					case "Road":
-						tile = new Road();
-						break;
-					case "Residential":
-						tile = new Building();
-						break;
-					case "Clear":
-						if (tileMap.ContainsKey(tilePoint)) {
-							Destroy(tileMap[tilePoint].TileObject);
-							tileMap.Remove(tilePoint);
+					Vector3 cubePos = new Vector3(Mathf.Round(pos.x), Mathf.Round(pos.y), Mathf.Round(pos.z));
+					if (ActiveCursor == DeleteCube) {
+						if (playerShip.Cubes.ContainsKey(cubePos)) {
+							Destroy(playerShip.Cubes[cubePos].Instance);
+							playerShip.Cubes.Remove(cubePos);
 						}
-						break;
-					default:
-						break;
+					} else if (ActiveCursor != null) {
+						// Add object at cursor
+						ShipCube cube = new ShipCube(ActiveCursor);
+						if (playerShip.Cubes.ContainsKey(cubePos)) {
+							Destroy(playerShip.Cubes[cubePos].Instance);
+							cube.Instance = (GameObject)Instantiate(cube.GameObject, cubePos, Quaternion.identity);
+							playerShip.Cubes[cubePos] = cube;
+						} else {
+							cube.Instance = (GameObject)Instantiate(cube.GameObject, cubePos, Quaternion.identity);
+							playerShip.Cubes.Add(cubePos, cube);
+						}
 					}
-					if (tile != null && !tileMap.ContainsKey(tilePoint)) {
-						tile.TileObject = Instantiate(activeCursor, cubePoint, Quaternion.identity);
-						tileMap.Add (tilePoint, tile);
-					}
-					*/
 				}
 				else
 				{
