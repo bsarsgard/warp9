@@ -11,74 +11,127 @@ public class ShipCube {
 	}
 }
 
-public class Ship {
+public class ShipDeck {
 	public Dictionary<Vector3, ShipCube> Cubes;
+	
+	public ShipDeck() {
+		Cubes = new Dictionary<Vector3, ShipCube>();
+	}
+	
+	public ShipCube AddCube(Vector3 position, GameObject gameObject) {
+		ShipCube cube = new ShipCube(gameObject);
+		Cubes.Add(position, cube);
+		return cube;
+	}
+	
+	public ShipCube RemoveCube(Vector3 position) {
+		ShipCube cube = null;
+		if (Cubes.ContainsKey(position)) {
+			cube = Cubes[position];
+		}
+		if (cube != null) {
+			Cubes.Remove(position);
+		}
+		return cube;
+	}
+}
+
+public class Ship {
+	public List<ShipDeck> Decks;
 	
 	public GameObject FloorCube { get; set; }
 	public GameObject WallCube { get; set; }
 	public GameObject HullCube { get; set; }
 	
 	public Ship(GameObject floorCube, GameObject hullCube, GameObject wallCube) {
-		Cubes = new Dictionary<Vector3, ShipCube>();
 		FloorCube = floorCube;
 		HullCube = hullCube;
 		WallCube = wallCube;
-		for (int zz = 0; zz <= 4; zz++) {
+		
+		Decks = new List<ShipDeck>();
+		Decks.Add(new ShipDeck());
+		for (int yy = 0; yy <= 4; yy++) {
 			for (int xx = -3; xx <= 3; xx++) {
-				Cubes.Add(new Vector3(xx, 0, zz), new ShipCube(FloorCube));
+				Decks[0].Cubes.Add(new Vector3(xx, yy, 0), new ShipCube(FloorCube));
 			}
 		}
 		
-		Cubes.Add(new Vector3(-4, 1, -1), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(-3, 1, -1), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(-2, 1, -1), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(-1, 1, -1), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(0, 1, -1), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(1, 1, -1), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(2, 1, -1), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(3, 1, -1), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(4, 1, -1), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(-4, 1, 0), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(4, 1, 0), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(-4, 1, 1), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(4, 1, 1), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(-4, 1, 2), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(4, 1, 2), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(-4, 1, 3), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(4, 1, 3), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(-4, 1, 4), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(4, 1, 4), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(-4, 1, 5), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(-3, 1, 5), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(-2, 1, 5), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(-1, 1, 5), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(0, 1, 5), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(1, 1, 5), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(2, 1, 5), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(3, 1, 5), new ShipCube(HullCube));
-		Cubes.Add(new Vector3(4, 1, 5), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(-4, -1, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(-3, -1, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(-2, -1, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(-1, -1, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(0, -1, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(1, -1, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(2, -1, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(3, -1, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(4, -1, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(-4, 0, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(4, 0, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(-4, 1, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(4, 1, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(-4, 2, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(4, 2, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(-4, 3, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(4, 3, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(-4, 4, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(4, 4, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(-4, 5, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(-3, 5, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(-2, 5, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(-1, 5, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(0, 5, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(1, 5, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(2, 5, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(3, 5, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(4, 5, 1), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(-4, -1, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(-3, -1, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(-2, -1, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(-1, -1, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(0, -1, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(1, -1, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(2, -1, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(3, -1, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(4, -1, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(-4, 0, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(4, 0, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(-4, 1, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(4, 1, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(-4, 2, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(4, 2, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(-4, 3, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(4, 3, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(-4, 4, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(4, 4, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(-4, 5, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(-3, 5, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(-2, 5, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(-1, 5, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(0, 5, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(1, 5, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(2, 5, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(3, 5, 0), new ShipCube(HullCube));
+		Decks[0].Cubes.Add(new Vector3(4, 5, 0), new ShipCube(HullCube));
 		
-		Cubes.Add(new Vector3(-3, 1, 0), new ShipCube(WallCube));
-		Cubes.Add(new Vector3(-2, 1, 0), new ShipCube(WallCube));
-		Cubes.Add(new Vector3(-1, 1, 0), new ShipCube(WallCube));
-		Cubes.Add(new Vector3(0, 1, 0), new ShipCube(WallCube));
-		Cubes.Add(new Vector3(1, 1, 0), new ShipCube(WallCube));
-		Cubes.Add(new Vector3(2, 1, 0), new ShipCube(WallCube));
-		Cubes.Add(new Vector3(3, 1, 0), new ShipCube(WallCube));
-		Cubes.Add(new Vector3(-3, 1, 1), new ShipCube(WallCube));
-		Cubes.Add(new Vector3(3, 1, 1), new ShipCube(WallCube));
-		Cubes.Add(new Vector3(-3, 1, 2), new ShipCube(WallCube));
-		Cubes.Add(new Vector3(3, 1, 2), new ShipCube(WallCube));
-		Cubes.Add(new Vector3(-3, 1, 3), new ShipCube(WallCube));
-		Cubes.Add(new Vector3(3, 1, 3), new ShipCube(WallCube));
-		Cubes.Add(new Vector3(-3, 1, 4), new ShipCube(WallCube));
-		Cubes.Add(new Vector3(-2, 1, 4), new ShipCube(WallCube));
-		Cubes.Add(new Vector3(-1, 1, 4), new ShipCube(WallCube));
-		Cubes.Add(new Vector3(0, 1, 4), new ShipCube(WallCube));
-		Cubes.Add(new Vector3(1, 1, 4), new ShipCube(WallCube));
-		Cubes.Add(new Vector3(2, 1, 4), new ShipCube(WallCube));
-		Cubes.Add(new Vector3(3, 1, 4), new ShipCube(WallCube));
+		Decks[0].Cubes.Add(new Vector3(-3, 0, 1), new ShipCube(WallCube));
+		Decks[0].Cubes.Add(new Vector3(-2, 0, 1), new ShipCube(WallCube));
+		Decks[0].Cubes.Add(new Vector3(-1, 0, 1), new ShipCube(WallCube));
+		Decks[0].Cubes.Add(new Vector3(0, 0, 1), new ShipCube(WallCube));
+		Decks[0].Cubes.Add(new Vector3(1, 0, 1), new ShipCube(WallCube));
+		Decks[0].Cubes.Add(new Vector3(2, 0, 1), new ShipCube(WallCube));
+		Decks[0].Cubes.Add(new Vector3(3, 0, 1), new ShipCube(WallCube));
+		Decks[0].Cubes.Add(new Vector3(-3, 1, 1), new ShipCube(WallCube));
+		Decks[0].Cubes.Add(new Vector3(3, 1, 1), new ShipCube(WallCube));
+		Decks[0].Cubes.Add(new Vector3(-3, 2, 1), new ShipCube(WallCube));
+		Decks[0].Cubes.Add(new Vector3(3, 2, 1), new ShipCube(WallCube));
+		Decks[0].Cubes.Add(new Vector3(-3, 3, 1), new ShipCube(WallCube));
+		Decks[0].Cubes.Add(new Vector3(3, 3, 1), new ShipCube(WallCube));
+		Decks[0].Cubes.Add(new Vector3(-3, 4, 1), new ShipCube(WallCube));
+		Decks[0].Cubes.Add(new Vector3(-2, 4, 1), new ShipCube(WallCube));
+		Decks[0].Cubes.Add(new Vector3(-1, 4, 1), new ShipCube(WallCube));
+		Decks[0].Cubes.Add(new Vector3(0, 4, 1), new ShipCube(WallCube));
+		Decks[0].Cubes.Add(new Vector3(1, 4, 1), new ShipCube(WallCube));
+		Decks[0].Cubes.Add(new Vector3(2, 4, 1), new ShipCube(WallCube));
+		Decks[0].Cubes.Add(new Vector3(3, 4, 1), new ShipCube(WallCube));
 	}
-	
-	
 }
