@@ -46,14 +46,13 @@ public class MainThread : MonoBehaviour {
 		// set up the gui
 		menuBox = new Rect(0,0,100,200);
 		
+		playerShip = new Ship(FloorCube, HullCube, WallCube);
 		// json load
-		if (false && File.Exists("save.txt")) {
+		if (File.Exists("save.txt")) {
 			string json = File.ReadAllText("save.txt");
-			playerShip = JsonReader.Deserialize<Ship>(json);
-			playerShip.Load();
-			Debug.Log(playerShip.Decks[0].Cubes.Count);
+			SerializedShip serializedShip = JsonReader.Deserialize<SerializedShip>(json);
+			playerShip.Load(serializedShip);
 		} else {
-			playerShip = new Ship(FloorCube, HullCube, WallCube);
 			playerShip.Build();
 		}
 		foreach (ShipDeck deck in playerShip.Decks) {
@@ -174,7 +173,7 @@ public class MainThread : MonoBehaviour {
 	
 	void OnApplicationQuit() {
 		playerShip.Save();
-		string json = JsonWriter.Serialize(playerShip);
+		string json = JsonWriter.Serialize(playerShip.Save());
 		File.WriteAllText("save.txt", json);
 	}
 }

@@ -16,7 +16,6 @@ public class ShipCube {
 
 public class ShipDeck {
 	public Dictionary<Vector3, ShipCube> Cubes;
-	public Dictionary<string, ShipCube> Cubes_ForSave;
 	
 	public ShipDeck() {
 		Cubes = new Dictionary<Vector3, ShipCube>();
@@ -38,24 +37,18 @@ public class ShipDeck {
 		}
 		return cube;
 	}
-	
-	public void Save() {
-		Cubes_ForSave = new Dictionary<string, ShipCube>();
-		foreach (Vector3 vect in Cubes.Keys) {
-			Cubes_ForSave.Add(vect.x + "," + vect.y + "," + vect.z, Cubes[vect]);
-		}
-		Cubes = null;
-	}
-	
-	public void Load() {
-		Cubes = new Dictionary<Vector3, ShipCube>();
-		foreach (string vstr in Cubes_ForSave.Keys) {
-			string[] vstrspl = vstr.Split(',');
-			Vector3 vect = new Vector3(float.Parse(vstrspl[0]), float.Parse(vstrspl[1]), float.Parse(vstrspl[2]));
-			Cubes.Add(vect, Cubes_ForSave[vstr]);
-		}
-		Cubes_ForSave = null;
-	}
+}
+
+public class SerializedShip {
+	public List<SerializedCube> Cubes { get; set; }
+}
+
+public class SerializedCube {
+	public int Deck { get; set; }
+	public string GameObject { get; set; }
+	public float x { get; set; }
+	public float y { get; set; }
+	public float z { get; set; }
 }
 
 public class Ship {
@@ -84,15 +77,40 @@ public class Ship {
 		}
 	}
 	
-	public void Save() {
-		foreach (ShipDeck deck in Decks) {
-			deck.Save();
+	public SerializedShip Save() {
+		List<SerializedCube> allCubes = new List<SerializedCube>();
+		for (int ii = 0; ii < Decks.Count; ii++) {
+			foreach (Vector3 key in Decks[ii].Cubes.Keys) {
+				ShipCube sc = Decks[ii].Cubes[key];
+				SerializedCube cube = new SerializedCube() { Deck = ii, GameObject = sc.GameObject.ToString(), x = key.x, y = key.y, z = key.z };
+				allCubes.Add(cube);
+			}
 		}
+		return new SerializedShip() { Cubes = allCubes };
 	}
 	
-	public void Load() {
-		foreach (ShipDeck deck in Decks) {
-			deck.Load();
+	public void Load(SerializedShip ship) {
+		Decks = new List<ShipDeck>();
+		foreach (SerializedCube cube in ship.Cubes) {
+			if (Decks.Count <= cube.Deck) {
+				for (int ii = Decks.Count; ii <= cube.Deck; ii++) {
+					Decks.Add(new ShipDeck());
+				}
+			}
+			Vector3 vector = new Vector3(cube.x, cube.y, cube.z);
+			GameObject obj = null;
+			switch (cube.GameObject) {
+			case "FloorCube (UnityEngine.GameObject)":
+				obj = FloorCube;
+				break;
+			case "HullCube (UnityEngine.GameObject)":
+				obj = HullCube;
+				break;
+			case "WallCube (UnityEngine.GameObject)":
+				obj = WallCube;
+				break;
+			}
+			Decks[cube.Deck].Cubes.Add(vector, new ShipCube(obj));
 		}
 	}
 }
