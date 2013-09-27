@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 3c983b294a342af4d9f557076eb2b675
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - WallCube: {fileID: 100000, guid: 32c15c2b7db446b44a9fb7535dd36473, type: 2}
+  - FloorCube: {fileID: 100000, guid: d4ed3716305855a4fb1ae2caab817f06, type: 2}
+  - HullCube: {fileID: 100000, guid: 3d6a179690d7ad044a2bb213bf038048, type: 2}
+  - DeleteCube: {fileID: 100000, guid: 43d3000606a6c7e4a81848a3096df0d5, type: 2}
+  - PersonCapsule: {fileID: 100000, guid: ce822402baf804e458db43a0eb29ccff, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
