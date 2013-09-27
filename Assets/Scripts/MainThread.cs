@@ -143,19 +143,8 @@ public class MainThread : MonoBehaviour {
 						// check if floor should be added
 						Vector3 floorPos = new Vector3(cubePos.x, cubePos.y - 1, cubePos.z);
 						if (!playerShipDeck.Cubes.ContainsKey(floorPos)) {
-							if (playerShipDeck.Cubes.ContainsKey(new Vector3(cubePos.x - 1, cubePos.y, cubePos.z))
-								&& playerShipDeck.Cubes.ContainsKey(new Vector3(cubePos.x + 1, cubePos.y, cubePos.z))
-								&& playerShipDeck.Cubes.ContainsKey(new Vector3(cubePos.x, cubePos.y, cubePos.z - 1))
-								&& playerShipDeck.Cubes.ContainsKey(new Vector3(cubePos.x, cubePos.y, cubePos.z + 1))
-							) {
-								// area is interior, give it a floor
-								cube = playerShipDeck.AddCube(floorPos, FloorCube);
-								cube.Instance = (GameObject)Instantiate(cube.GameObject, floorPos, Quaternion.identity);
-							} else {
-								// area is exterior, give it aditional hull
-								cube = playerShipDeck.AddCube(floorPos, HullCube);
-								cube.Instance = (GameObject)Instantiate(cube.GameObject, floorPos, Quaternion.identity);
-							}
+							cube = playerShipDeck.AddCube(floorPos, HullCube);
+							cube.Instance = (GameObject)Instantiate(cube.GameObject, floorPos, Quaternion.identity);
 						}
 					}
 				}
