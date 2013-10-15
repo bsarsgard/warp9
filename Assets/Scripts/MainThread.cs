@@ -106,11 +106,11 @@ public class MainThread : MonoBehaviour {
 			switch (selectionStrings[toolbarInt][selectionGridInt]) {
 			case "Wall":
 				ActiveCursor = WallObject;
-				ActiveFloorCursor = HullObject;
+				ActiveFloorCursor = FloorObject;
 				break;
 			case "Hull":
 				ActiveCursor = HullObject;
-				ActiveFloorCursor = HullObject;
+				ActiveFloorCursor = FloorObject;
 				break;
 			case "Clear":
 				ActiveCursor = DeleteObject;
@@ -176,7 +176,7 @@ public class MainThread : MonoBehaviour {
 						cube = playerShipDeck.AddObject(cubePos, ActiveCursor);
 						cube.Instance = (GameObject)Instantiate(cube.GameObject, cubePos, Quaternion.identity);
 					}
-					Vector3 floorPos = new Vector3(cubePos.x, cubePos.y - 1, cubePos.z);
+					Vector3 floorPos = new Vector3(cubePos.x, cubePos.y - 1.5f, cubePos.z);
 					if (ActiveFloorCursor == DeleteObject) {
 						// Remove object at cursor
 						ShipObject cube = playerShipDeck.RemoveObject(floorPos);
@@ -201,7 +201,7 @@ public class MainThread : MonoBehaviour {
 						cursor.transform.position = new Vector3(Mathf.Round(pos.x), Mathf.Round(pos.y) + 0.01f, Mathf.Round(pos.z));
 					}
 					if (floorCursor != null) {
-						floorCursor.transform.position = new Vector3(Mathf.Round(pos.x), Mathf.Round(pos.y) - 0.99f, Mathf.Round(pos.z));
+						floorCursor.transform.position = new Vector3(Mathf.Round(pos.x), Mathf.Round(pos.y) - 1.49f, Mathf.Round(pos.z));
 					}
 				}
 				

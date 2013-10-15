@@ -76,7 +76,7 @@ public class Ship {
 		Decks.Add(new ShipDeck());
 		for (int zz = 0; zz <= 4; zz++) {
 			for (int xx = -3; xx <= 3; xx++) {
-				Decks[0].Objects.Add(new Vector3(xx, 0, zz), new ShipObject(FloorObject));
+				Decks[0].Objects.Add(new Vector3(xx, -0.5f, zz), new ShipObject(FloorObject));
 			}
 		}
 	}
