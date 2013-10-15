@@ -4,13 +4,13 @@ using System.IO;
 using Pathfinding.Serialization.JsonFx;
 
 public class MainThread : MonoBehaviour {
-	public GameObject WallCube;
-	public GameObject FloorCube;
-	public GameObject BridgeCube;
-	public GameObject EngineeringCube;
-	public GameObject HullCube;
-	public GameObject DeleteCube;
-	public GameObject PersonCapsule;
+	public GameObject WallObject;
+	public GameObject FloorObject;
+	public GameObject BridgeObject;
+	public GameObject EngineeringObject;
+	public GameObject HullObject;
+	public GameObject DeleteObject;
+	public GameObject PersonObject;
 	
 	private GameObject _activeCursor;
 	private GameObject ActiveCursor {
@@ -24,7 +24,7 @@ public class MainThread : MonoBehaviour {
 				}
 				if (value != null) {
 					cursor = (GameObject)Instantiate(value, new Vector3(0, 0, 0), Quaternion.identity);
-					if (value != DeleteCube) {
+					if (value != DeleteObject) {
 						cursor.renderer.material.color = new Color(0, 0, 1f, 0.66f);
 					}
 				}
@@ -45,7 +45,7 @@ public class MainThread : MonoBehaviour {
 				}
 				if (value != null) {
 					floorCursor = (GameObject)Instantiate(value, new Vector3(0, 0, 0), Quaternion.identity);
-					if (value != DeleteCube) {
+					if (value != DeleteObject) {
 						floorCursor.renderer.material.color = new Color(0, 0, 1f, 0.66f);
 					}
 				}
@@ -63,18 +63,19 @@ public class MainThread : MonoBehaviour {
 	private int toolbarInt = 0;
 	private int selectionGridInt = -1;
 		
-	string[] toolbarStrings = {"Build", "Rooms"};
+	string[] toolbarStrings = {"Build", "Room", "Mods"};
 	string[][] selectionStrings = new string[][] {
-		new string[] {"None", "Clear", "Hull", "Wall"},
-		new string[] {"None", "Floor", "Bridge", "Engineering"}
+		new string[] {"None", "Clear", "Hull", "Wall", "Door"},
+		new string[] {"None", "Floor", "Bridge", "Engineering", "Reactor Room", "Weapon Systems", "Atmosphere", "Quarters"},
+		new string[] {"None", "Console", "Engine", "Reactor", "Weapon", "Life Support", "Bed"}
 	};
 
 	// Use this for initialization
 	void Start () {
 		// set up the gui
-		menuBox = new Rect(0,0,140,200);
+		menuBox = new Rect(0, 0, 180, 250);
 		
-		playerShip = new Ship(FloorCube, HullCube, WallCube);
+		playerShip = new Ship(FloorObject, HullObject, WallObject, BridgeObject, EngineeringObject);
 		// json load
 		if (File.Exists("save.txt")) {
 			string json = File.ReadAllText("save.txt");
@@ -84,13 +85,13 @@ public class MainThread : MonoBehaviour {
 			playerShip.Build();
 		}
 		foreach (ShipDeck deck in playerShip.Decks) {
-			foreach (Vector3 key in deck.Cubes.Keys) {
-				deck.Cubes[key].Instance = (GameObject)Instantiate(deck.Cubes[key].GameObject, key, Quaternion.identity);
+			foreach (Vector3 key in deck.Objects.Keys) {
+				deck.Objects[key].Instance = (GameObject)Instantiate(deck.Objects[key].GameObject, key, Quaternion.identity);
 			}
 		}
 		playerShipDeck = playerShip.Decks[0];
 		
-		Instantiate(PersonCapsule, new Vector3(0, 1, 2), Quaternion.identity);
+		Instantiate(PersonObject, new Vector3(0, 1, 2), Quaternion.identity);
 	}
 	
 	// Draw the UI
@@ -98,34 +99,34 @@ public class MainThread : MonoBehaviour {
 		// Make a background box
 		GUI.Box(menuBox, "Build Menu");
 		
-		toolbarInt = GUI.Toolbar( new Rect(20, 30, 100, 20), toolbarInt, toolbarStrings);
-		selectionGridInt = GUI.SelectionGrid (new Rect (20, 60, 100, 80), selectionGridInt, selectionStrings[toolbarInt], 1);
+		toolbarInt = GUI.Toolbar( new Rect(10, 30, 160, 20), toolbarInt, toolbarStrings);
+		selectionGridInt = GUI.SelectionGrid (new Rect (10, 60, 160, 180), selectionGridInt, selectionStrings[toolbarInt], 1);
 		
 		if (selectionGridInt >= 0) {
 			switch (selectionStrings[toolbarInt][selectionGridInt]) {
 			case "Wall":
-				ActiveCursor = WallCube;
-				ActiveFloorCursor = HullCube;
+				ActiveCursor = WallObject;
+				ActiveFloorCursor = HullObject;
 				break;
 			case "Hull":
-				ActiveCursor = HullCube;
-				ActiveFloorCursor = HullCube;
+				ActiveCursor = HullObject;
+				ActiveFloorCursor = HullObject;
 				break;
 			case "Clear":
-				ActiveCursor = DeleteCube;
-				ActiveFloorCursor = DeleteCube;
+				ActiveCursor = DeleteObject;
+				ActiveFloorCursor = DeleteObject;
 				break;
 			case "Floor":
 				ActiveCursor = null;
-				ActiveFloorCursor = FloorCube;
+				ActiveFloorCursor = FloorObject;
 				break;
 			case "Bridge":
 				ActiveCursor = null;
-				ActiveFloorCursor = BridgeCube;
+				ActiveFloorCursor = BridgeObject;
 				break;
 			case "Engineering":
 				ActiveCursor = null;
-				ActiveFloorCursor = EngineeringCube;
+				ActiveFloorCursor = EngineeringObject;
 				break;
 			case "None":
 			default:
@@ -159,37 +160,37 @@ public class MainThread : MonoBehaviour {
 				if (Input.GetMouseButtonUp(0)) // LMB Clicked
 				{
 					Vector3 cubePos = new Vector3(Mathf.Round(pos.x), Mathf.Round(pos.y), Mathf.Round(pos.z));
-					if (ActiveCursor == DeleteCube || (ActiveCursor == null && ActiveFloorCursor != null)) {
+					if (ActiveCursor == DeleteObject || (ActiveCursor == null && ActiveFloorCursor != null)) {
 						// Remove object at cursor
-						ShipCube cube = playerShipDeck.RemoveCube(cubePos);
+						ShipObject cube = playerShipDeck.RemoveObject(cubePos);
 						if (cube != null) {
 							Destroy(cube.Instance);
 						}
 					} else if (ActiveCursor != null) {
 						// Remove previous objects at cursor
-						ShipCube cube = playerShipDeck.RemoveCube(cubePos);
+						ShipObject cube = playerShipDeck.RemoveObject(cubePos);
 						if (cube != null) {
 							Destroy(cube.Instance);
 						}
 						// Add object at cursor
-						cube = playerShipDeck.AddCube(cubePos, ActiveCursor);
+						cube = playerShipDeck.AddObject(cubePos, ActiveCursor);
 						cube.Instance = (GameObject)Instantiate(cube.GameObject, cubePos, Quaternion.identity);
 					}
 					Vector3 floorPos = new Vector3(cubePos.x, cubePos.y - 1, cubePos.z);
-					if (ActiveFloorCursor == DeleteCube) {
+					if (ActiveFloorCursor == DeleteObject) {
 						// Remove object at cursor
-						ShipCube cube = playerShipDeck.RemoveCube(floorPos);
+						ShipObject cube = playerShipDeck.RemoveObject(floorPos);
 						if (cube != null) {
 							Destroy(cube.Instance);
 						}
 					} else if (ActiveFloorCursor != null) {
 						// Remove previous objects at cursor
-						ShipCube cube = playerShipDeck.RemoveCube(floorPos);
+						ShipObject cube = playerShipDeck.RemoveObject(floorPos);
 						if (cube != null) {
 							Destroy(cube.Instance);
 						}
 						// Add object at cursor
-						cube = playerShipDeck.AddCube(floorPos, ActiveFloorCursor);
+						cube = playerShipDeck.AddObject(floorPos, ActiveFloorCursor);
 						cube.Instance = (GameObject)Instantiate(cube.GameObject, floorPos, Quaternion.identity);
 					}
 				}

@@ -5,6 +5,8 @@ MonoImporter:
   defaultReferences:
   - WallCube: {fileID: 100000, guid: 32c15c2b7db446b44a9fb7535dd36473, type: 2}
   - FloorCube: {fileID: 100000, guid: d4ed3716305855a4fb1ae2caab817f06, type: 2}
+  - BridgeCube: {fileID: 100000, guid: b3ca2c2848aec5e4b9b309f71f7561e3, type: 2}
+  - EngineeringCube: {fileID: 100000, guid: dac34b25d4ecdc2428d8af32a6eb1fb7, type: 2}
   - HullCube: {fileID: 100000, guid: 3d6a179690d7ad044a2bb213bf038048, type: 2}
   - DeleteCube: {fileID: 100000, guid: 43d3000606a6c7e4a81848a3096df0d5, type: 2}
   - PersonCapsule: {fileID: 100000, guid: ce822402baf804e458db43a0eb29ccff, type: 2}
