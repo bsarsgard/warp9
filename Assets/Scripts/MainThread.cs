@@ -5,12 +5,27 @@ using System.IO;
 using Pathfinding.Serialization.JsonFx;
 
 public class MainThread : MonoBehaviour {
-	public GameObject WallObject;
-	public GameObject FloorObject;
+	public GameObject BedObject;
+	public GameObject ConsoleObject;
+	public GameObject DoorObject;
+	public GameObject EngineObject;
+	public GameObject ReactorObject;
+	public GameObject WeaponSystemObject;
+	
+	public GameObject AtmosphereObject;
 	public GameObject BridgeObject;
 	public GameObject EngineeringObject;
+	public GameObject FloorObject;
+	public GameObject QuartersObject;
+	public GameObject ReactorRoomObject;
+	public GameObject TacticalObject;
+	
 	public GameObject HullObject;
-	public GameObject DeleteObject;
+	public GameObject WallObject;
+	
+	public GameObject DeleteWallObject;
+	public GameObject DeleteFloorObject;
+	
 	public GameObject PersonObject;
 	
 	private Vector2? dragCursorStart = null;
@@ -29,7 +44,7 @@ public class MainThread : MonoBehaviour {
 				}
 				if (value != null) {
 					cursor = (GameObject)Instantiate(value, new Vector3(0, 0, 0), Quaternion.identity);
-					if (value != DeleteObject) {
+					if (value != DeleteWallObject) {
 						cursor.renderer.material.color = new Color(0, 0, 1f, 0.66f);
 					}
 				}
@@ -50,7 +65,7 @@ public class MainThread : MonoBehaviour {
 				}
 				if (value != null) {
 					floorCursor = (GameObject)Instantiate(value, new Vector3(0, 0, 0), Quaternion.identity);
-					if (value != DeleteObject) {
+					if (value != DeleteWallObject) {
 						floorCursor.renderer.material.color = new Color(0, 0, 1f, 0.66f);
 					}
 				}
@@ -68,7 +83,7 @@ public class MainThread : MonoBehaviour {
 	private int toolbarInt = 0;
 	private int selectionGridInt = -1;
 		
-	string[] toolbarStrings = {"Build", "Room", "Mods"};
+	string[] toolbarStrings = {"Ship", "Room", "Feat"};
 	string[][] selectionStrings = new string[][] {
 		new string[] {"None", "Clear", "Hull", "Wall", "Door"},
 		new string[] {"None", "Floor", "Bridge", "Engineering", "Reactor Room", "Weapon Systems", "Atmosphere", "Quarters"},
@@ -109,7 +124,11 @@ public class MainThread : MonoBehaviour {
 		// Make a background box
 		GUI.Box(menuBox, "Build Menu");
 		
-		toolbarInt = GUI.Toolbar( new Rect(10, 30, 160, 20), toolbarInt, toolbarStrings);
+		int t = GUI.Toolbar( new Rect(10, 30, 160, 20), toolbarInt, toolbarStrings);
+		if (t != toolbarInt) {
+			toolbarInt = t;
+			selectionGridInt = 0;
+		}
 		selectionGridInt = GUI.SelectionGrid (new Rect (10, 60, 160, 180), selectionGridInt, selectionStrings[toolbarInt], 1);
 		
 		if (selectionGridInt >= 0) {
@@ -123,8 +142,8 @@ public class MainThread : MonoBehaviour {
 				ActiveFloorCursor = FloorObject;
 				break;
 			case "Clear":
-				ActiveCursor = DeleteObject;
-				ActiveFloorCursor = DeleteObject;
+				ActiveCursor = DeleteWallObject;
+				ActiveFloorCursor = DeleteWallObject;
 				break;
 			case "Floor":
 				ActiveCursor = null;
@@ -221,7 +240,7 @@ public class MainThread : MonoBehaviour {
 								if (ActiveCursor != null) {
 									Vector3 key = new Vector3(xx, 0.01f, yy);
 									GameObject obj = (GameObject)Instantiate(ActiveCursor, key, Quaternion.identity);
-									if (ActiveCursor != DeleteObject) {
+									if (ActiveCursor != DeleteWallObject) {
 										obj.renderer.material.color = new Color(0, 0, 1f, 0.66f);
 									}
 									dragCursorObjects[key] = obj;
@@ -229,7 +248,7 @@ public class MainThread : MonoBehaviour {
 								if (ActiveFloorCursor != null) {
 									Vector3 key = new Vector3(xx, -1.49f, yy);
 									GameObject obj = (GameObject)Instantiate(ActiveFloorCursor, key, Quaternion.identity);
-									if (ActiveFloorCursor != DeleteObject) {
+									if (ActiveFloorCursor != DeleteWallObject) {
 										obj.renderer.material.color = new Color(0, 0, 1f, 0.66f);
 									}
 									dragCursorObjects[key] = obj;
@@ -249,7 +268,7 @@ public class MainThread : MonoBehaviour {
 	
 	void PaintCursor(Vector2 cellPos) {
 		Vector3 cubePos = new Vector3(Mathf.Round(cellPos.x), 0f, Mathf.Round(cellPos.y));
-		if (ActiveCursor == DeleteObject || (ActiveCursor == null && ActiveFloorCursor != null)) {
+		if (ActiveCursor == DeleteWallObject || (ActiveCursor == null && ActiveFloorCursor != null)) {
 			// Remove object at cursor
 			ShipObject cube = playerShipDeck.RemoveWall(cellPos);
 			if (cube != null) {
@@ -266,7 +285,7 @@ public class MainThread : MonoBehaviour {
 			cube.Instance = (GameObject)Instantiate(cube.GameObject, cubePos, Quaternion.identity);
 		}
 		Vector3 floorPos = new Vector3(cubePos.x, cubePos.y - 1.5f, cubePos.z);
-		if (ActiveFloorCursor == DeleteObject) {
+		if (ActiveFloorCursor == DeleteWallObject) {
 			// Remove object at cursor
 			ShipObject cube = playerShipDeck.RemoveFloor(cellPos);
 			if (cube != null) {

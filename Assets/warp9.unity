@@ -20,7 +20,7 @@ RenderSettings:
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
   m_AmbientLight: {r: .200000003, g: .200000003, b: .200000003, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: b9be0c15efe8ad9489fdeead114d8ec5, type: 2}
+  m_SkyboxMaterial: {fileID: 2100000, guid: a07fadb24ea940240afba3afc1a692cc, type: 2}
   m_HaloStrength: .5
   m_FlareStrength: 1
   m_HaloTexture: {fileID: 0}
@@ -265,10 +265,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c983b294a342af4d9f557076eb2b675, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  WallObject: {fileID: 100000, guid: 32c15c2b7db446b44a9fb7535dd36473, type: 2}
-  FloorObject: {fileID: 100000, guid: d4ed3716305855a4fb1ae2caab817f06, type: 2}
+  BedObject: {fileID: 0}
+  ConsoleObject: {fileID: 0}
+  DoorObject: {fileID: 0}
+  EngineObject: {fileID: 0}
+  ReactorObject: {fileID: 0}
+  WeaponSystemObject: {fileID: 0}
+  AtmosphereObject: {fileID: 0}
   BridgeObject: {fileID: 100000, guid: b3ca2c2848aec5e4b9b309f71f7561e3, type: 2}
   EngineeringObject: {fileID: 100000, guid: dac34b25d4ecdc2428d8af32a6eb1fb7, type: 2}
+  FloorObject: {fileID: 100000, guid: d4ed3716305855a4fb1ae2caab817f06, type: 2}
+  QuartersObject: {fileID: 0}
+  ReactorRoomObject: {fileID: 0}
+  TacticalObject: {fileID: 0}
   HullObject: {fileID: 100000, guid: 3d6a179690d7ad044a2bb213bf038048, type: 2}
-  DeleteObject: {fileID: 100000, guid: 43d3000606a6c7e4a81848a3096df0d5, type: 2}
+  WallObject: {fileID: 100000, guid: 32c15c2b7db446b44a9fb7535dd36473, type: 2}
+  DeleteWallObject: {fileID: 0}
+  DeleteFloorObject: {fileID: 0}
   PersonObject: {fileID: 100000, guid: ce822402baf804e458db43a0eb29ccff, type: 2}
