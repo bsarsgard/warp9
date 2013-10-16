@@ -5,22 +5,31 @@ using System.Collections.Generic;
 public class ShipObject {
 	public GameObject GameObject { get; set; }
 	public GameObject Instance { get; set; }
+	public Vector3 Position { get; set; }
 	
 	public ShipObject() {
 	}
 	
-	public ShipObject(GameObject gameObject) {
+	public ShipObject(GameObject gameObject, Vector3 position) {
 		this.GameObject = gameObject;
+		this.Position = position;
 	}
 }
 
+public class ShipCell {
+	public ShipObject Floor { get; set; }
+	public ShipObject Wall { get; set; }
+	public List<ShipObject> Features { get; set; }
+}
+
 public class ShipDeck {
-	public Dictionary<Vector3, ShipObject> Objects;
+	public Dictionary<Vector2, ShipCell> Cells;
 	
 	public ShipDeck() {
-		Objects = new Dictionary<Vector3, ShipObject>();
+		Cells = new Dictionary<Vector2, ShipCell>();
 	}
 	
+	/*
 	public ShipObject AddObject(Vector3 position, GameObject gameObject) {
 		ShipObject cube = new ShipObject(gameObject);
 		Objects.Add(position, cube);
@@ -37,14 +46,68 @@ public class ShipDeck {
 		}
 		return cube;
 	}
+	*/
+	
+	public ShipObject RemoveFloor(Vector2 position) {
+		ShipObject obj = null;
+		if (Cells.ContainsKey(position)) {
+			obj = Cells[position].Floor;
+			Cells[position].Floor = null;
+			if (Cells[position].Wall == null) {
+				Cells.Remove(position);
+			}
+		}
+		return obj;
+	}
+	
+	public ShipObject RemoveWall(Vector2 position) {
+		ShipObject obj = null;
+		if (Cells.ContainsKey(position)) {
+			obj = Cells[position].Wall;
+			Cells[position].Wall = null;
+			if (Cells[position].Floor == null) {
+				Cells.Remove(position);
+			}
+		}
+		return obj;
+	}
+	
+	public ShipObject SetFloor(Vector2 cellPos, Vector3 objectPos, GameObject gameObject) {
+		ShipObject obj = new ShipObject(gameObject, objectPos);
+		if (Cells.ContainsKey(cellPos)) {
+			Cells[cellPos].Floor = obj;
+		} else {
+			ShipCell cell = new ShipCell() { Floor = obj };
+			Cells.Add(cellPos, cell);
+		}
+		return obj;
+	}
+	
+	public ShipObject SetWall(Vector2 cellPos, Vector3 objectPos, GameObject gameObject) {
+		ShipObject obj = new ShipObject(gameObject, objectPos);
+		if (Cells.ContainsKey(cellPos)) {
+			Cells[cellPos].Wall = obj;
+		} else {
+			ShipCell cell = new ShipCell() { Wall = obj };
+			Cells.Add(cellPos, cell);
+		}
+		return obj;
+	}
 }
 
 public class SerializedShip {
-	public List<SerializedObject> Objects { get; set; }
+	public List<SerializedCell> Cells { get; set; }
+}
+
+public class SerializedCell {
+	public int Deck { get; set; }
+	public float x { get; set; }
+	public float y { get; set; }
+	public SerializedObject Floor { get; set; }
+	public SerializedObject Wall { get; set; }
 }
 
 public class SerializedObject {
-	public int Deck { get; set; }
 	public string GameObject { get; set; }
 	public float x { get; set; }
 	public float y { get; set; }
@@ -74,53 +137,72 @@ public class Ship {
 	public void Build() {
 		Decks = new List<ShipDeck>();
 		Decks.Add(new ShipDeck());
-		for (int zz = 0; zz <= 4; zz++) {
-			for (int xx = -3; xx <= 3; xx++) {
-				Decks[0].Objects.Add(new Vector3(xx, -0.5f, zz), new ShipObject(FloorObject));
-			}
-		}
 	}
 	
 	public SerializedShip Save() {
-		List<SerializedObject> allObjects = new List<SerializedObject>();
+		List<SerializedCell> allCells = new List<SerializedCell>();
 		for (int ii = 0; ii < Decks.Count; ii++) {
+			/*
 			foreach (Vector3 key in Decks[ii].Objects.Keys) {
 				ShipObject sc = Decks[ii].Objects[key];
 				SerializedObject cube = new SerializedObject() { Deck = ii, GameObject = sc.GameObject.ToString(), x = key.x, y = key.y, z = key.z };
 				allObjects.Add(cube);
 			}
+			*/
+			foreach (Vector2 key in Decks[ii].Cells.Keys) {
+				ShipCell cell = Decks[ii].Cells[key];
+				SerializedCell sc = new SerializedCell() { Deck = ii, x = key.x, y = key.y };
+				if (cell.Floor != null) {
+					sc.Floor = new SerializedObject() { GameObject = cell.Floor.GameObject.ToString(), x = cell.Floor.Position.x, y = cell.Floor.Position.y, z = cell.Floor.Position.z };
+				}
+				if (cell.Wall != null) {
+					sc.Wall = new SerializedObject() { GameObject = cell.Wall.GameObject.ToString(), x = cell.Wall.Position.x, y = cell.Wall.Position.y, z = cell.Wall.Position.z };
+				}
+				allCells.Add(sc);
+			}
 		}
-		return new SerializedShip() { Objects = allObjects };
+		return new SerializedShip() { Cells = allCells };
+	}
+	
+	private GameObject GetObject(string objectString) {
+		GameObject obj = null;
+		switch (objectString) {
+		case "Floor (UnityEngine.GameObject)":
+			obj = FloorObject;
+			break;
+		case "Hull (UnityEngine.GameObject)":
+			obj = HullObject;
+			break;
+		case "Wall (UnityEngine.GameObject)":
+			obj = WallObject;
+			break;
+		case "Bridge (UnityEngine.GameObject)":
+			obj = BridgeObject;
+			break;
+		case "Engineering (UnityEngine.GameObject)":
+			obj = EngineeringObject;
+			break;
+		}
+		
+		return obj;
 	}
 	
 	public void Load(SerializedShip ship) {
 		Decks = new List<ShipDeck>();
-		foreach (SerializedObject cube in ship.Objects) {
-			if (Decks.Count <= cube.Deck) {
-				for (int ii = Decks.Count; ii <= cube.Deck; ii++) {
+		foreach (SerializedCell cell in ship.Cells) {
+			if (Decks.Count <= cell.Deck) {
+				for (int ii = Decks.Count; ii <= cell.Deck; ii++) {
 					Decks.Add(new ShipDeck());
 				}
 			}
-			Vector3 vector = new Vector3(cube.x, cube.y, cube.z);
-			GameObject obj = null;
-			switch (cube.GameObject) {
-			case "Floor (UnityEngine.GameObject)":
-				obj = FloorObject;
-				break;
-			case "Hull (UnityEngine.GameObject)":
-				obj = HullObject;
-				break;
-			case "Wall (UnityEngine.GameObject)":
-				obj = WallObject;
-				break;
-			case "Bridge (UnityEngine.GameObject)":
-				obj = BridgeObject;
-				break;
-			case "Engineering (UnityEngine.GameObject)":
-				obj = EngineeringObject;
-				break;
+			Vector2 pos = new Vector3(cell.x, cell.y);
+			//Decks[cube.Deck].Objects.Add(vector, new ShipObject(obj));
+			if (cell.Floor != null) {
+				Decks[cell.Deck].SetFloor(pos, new Vector3(cell.Floor.x, cell.Floor.y, cell.Floor.z), GetObject(cell.Floor.GameObject));
 			}
-			Decks[cube.Deck].Objects.Add(vector, new ShipObject(obj));
+			if (cell.Wall != null) {
+				Decks[cell.Deck].SetWall(pos, new Vector3(cell.Wall.x, cell.Wall.y, cell.Wall.z), GetObject(cell.Wall.GameObject));
+			}
 		}
 	}
 }

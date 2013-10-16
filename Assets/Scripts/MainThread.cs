@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using Pathfinding.Serialization.JsonFx;
 
@@ -11,6 +12,10 @@ public class MainThread : MonoBehaviour {
 	public GameObject HullObject;
 	public GameObject DeleteObject;
 	public GameObject PersonObject;
+	
+	private Vector2? dragCursorStart = null;
+	private Vector2? dragCursorStop = null;
+	private Dictionary<Vector3, GameObject> dragCursorObjects = new Dictionary<Vector3, GameObject>();
 	
 	private GameObject _activeCursor;
 	private GameObject ActiveCursor {
@@ -85,13 +90,18 @@ public class MainThread : MonoBehaviour {
 			playerShip.Build();
 		}
 		foreach (ShipDeck deck in playerShip.Decks) {
-			foreach (Vector3 key in deck.Objects.Keys) {
-				deck.Objects[key].Instance = (GameObject)Instantiate(deck.Objects[key].GameObject, key, Quaternion.identity);
+			foreach (ShipCell cell in deck.Cells.Values) {
+				if (cell.Floor != null) {
+					cell.Floor.Instance = (GameObject)Instantiate(cell.Floor.GameObject, cell.Floor.Position, Quaternion.identity);
+				}
+				if (cell.Wall != null) {
+					cell.Wall.Instance = (GameObject)Instantiate(cell.Wall.GameObject, cell.Wall.Position, Quaternion.identity);
+				}
 			}
 		}
 		playerShipDeck = playerShip.Decks[0];
 		
-		Instantiate(PersonObject, new Vector3(0, 1, 2), Quaternion.identity);
+		Instantiate(PersonObject, new Vector3(0, 0, 2), Quaternion.identity);
 	}
 	
 	// Draw the UI
@@ -156,56 +166,131 @@ public class MainThread : MonoBehaviour {
 			if (hPlane.Raycast(ray, out distance)) {
 				// get the hit point:
 				Vector3 pos = ray.GetPoint(distance);
+				Vector2 cellPos = new Vector2(Mathf.Round(pos.x), Mathf.Round(pos.z));
 				// Check mouse
 				if (Input.GetMouseButtonUp(0)) // LMB Clicked
 				{
-					Vector3 cubePos = new Vector3(Mathf.Round(pos.x), Mathf.Round(pos.y), Mathf.Round(pos.z));
-					if (ActiveCursor == DeleteObject || (ActiveCursor == null && ActiveFloorCursor != null)) {
-						// Remove object at cursor
-						ShipObject cube = playerShipDeck.RemoveObject(cubePos);
-						if (cube != null) {
-							Destroy(cube.Instance);
+					if (dragCursorStart == null || dragCursorStop == null || dragCursorStart.Equals(dragCursorStop)) {
+						PaintCursor(cellPos);
+					} else {
+						for (
+							float xx = Mathf.Min(dragCursorStart.Value.x, dragCursorStop.Value.x);
+							xx <= Mathf.Max(dragCursorStart.Value.x, dragCursorStop.Value.x);
+							xx++
+						) {
+							for (
+								float yy = Mathf.Min(dragCursorStart.Value.y, dragCursorStop.Value.y);
+								yy <= Mathf.Max(dragCursorStart.Value.y, dragCursorStop.Value.y);
+								yy++
+							) {
+								PaintCursor(new Vector2(xx, yy));
+							}
 						}
-					} else if (ActiveCursor != null) {
-						// Remove previous objects at cursor
-						ShipObject cube = playerShipDeck.RemoveObject(cubePos);
-						if (cube != null) {
-							Destroy(cube.Instance);
-						}
-						// Add object at cursor
-						cube = playerShipDeck.AddObject(cubePos, ActiveCursor);
-						cube.Instance = (GameObject)Instantiate(cube.GameObject, cubePos, Quaternion.identity);
 					}
-					Vector3 floorPos = new Vector3(cubePos.x, cubePos.y - 1.5f, cubePos.z);
-					if (ActiveFloorCursor == DeleteObject) {
-						// Remove object at cursor
-						ShipObject cube = playerShipDeck.RemoveObject(floorPos);
-						if (cube != null) {
-							Destroy(cube.Instance);
+					dragCursorStart = null;
+					dragCursorStop = null;
+					foreach (GameObject obj in dragCursorObjects.Values) {
+						Destroy(obj);
+					}
+					dragCursorObjects.Clear();
+				}
+				else if (Input.GetMouseButton(0))
+				{
+					// Cursor is being dragged
+					if (dragCursorStart == null) {
+						dragCursorStart = cellPos;
+					}
+					if (dragCursorStop != cellPos) {
+						// redraw the drag area
+						dragCursorStop = cellPos;
+						foreach (GameObject obj in dragCursorObjects.Values) {
+							Destroy(obj);
 						}
-					} else if (ActiveFloorCursor != null) {
-						// Remove previous objects at cursor
-						ShipObject cube = playerShipDeck.RemoveObject(floorPos);
-						if (cube != null) {
-							Destroy(cube.Instance);
+						dragCursorObjects.Clear();
+						for (
+							float xx = Mathf.Min(dragCursorStart.Value.x, dragCursorStop.Value.x);
+							xx <= Mathf.Max(dragCursorStart.Value.x, dragCursorStop.Value.x);
+							xx++
+						) {
+							for (
+								float yy = Mathf.Min(dragCursorStart.Value.y, dragCursorStop.Value.y);
+								yy <= Mathf.Max(dragCursorStart.Value.y, dragCursorStop.Value.y);
+								yy++
+							) {
+								// Draw cursor
+								if (ActiveCursor != null) {
+									Vector3 key = new Vector3(xx, 0.01f, yy);
+									GameObject obj = (GameObject)Instantiate(ActiveCursor, key, Quaternion.identity);
+									if (ActiveCursor != DeleteObject) {
+										obj.renderer.material.color = new Color(0, 0, 1f, 0.66f);
+									}
+									dragCursorObjects[key] = obj;
+								}
+								if (ActiveFloorCursor != null) {
+									Vector3 key = new Vector3(xx, -1.49f, yy);
+									GameObject obj = (GameObject)Instantiate(ActiveFloorCursor, key, Quaternion.identity);
+									if (ActiveFloorCursor != DeleteObject) {
+										obj.renderer.material.color = new Color(0, 0, 1f, 0.66f);
+									}
+									dragCursorObjects[key] = obj;
+								}
+							}
 						}
-						// Add object at cursor
-						cube = playerShipDeck.AddObject(floorPos, ActiveFloorCursor);
-						cube.Instance = (GameObject)Instantiate(cube.GameObject, floorPos, Quaternion.identity);
 					}
 				}
 				else
 				{
-					// Draw cursor
-					if (cursor != null) {
-						cursor.transform.position = new Vector3(Mathf.Round(pos.x), Mathf.Round(pos.y) + 0.01f, Mathf.Round(pos.z));
-					}
-					if (floorCursor != null) {
-						floorCursor.transform.position = new Vector3(Mathf.Round(pos.x), Mathf.Round(pos.y) - 1.49f, Mathf.Round(pos.z));
-					}
+					DrawCursor(cellPos);
 				}
 				
 			}
+		}
+	}
+	
+	void PaintCursor(Vector2 cellPos) {
+		Vector3 cubePos = new Vector3(Mathf.Round(cellPos.x), 0f, Mathf.Round(cellPos.y));
+		if (ActiveCursor == DeleteObject || (ActiveCursor == null && ActiveFloorCursor != null)) {
+			// Remove object at cursor
+			ShipObject cube = playerShipDeck.RemoveWall(cellPos);
+			if (cube != null) {
+				Destroy(cube.Instance);
+			}
+		} else if (ActiveCursor != null) {
+			// Remove previous objects at cursor
+			ShipObject cube = playerShipDeck.RemoveWall(cellPos);
+			if (cube != null) {
+				Destroy(cube.Instance);
+			}
+			// Add object at cursor
+			cube = playerShipDeck.SetWall(cellPos, cubePos, ActiveCursor);
+			cube.Instance = (GameObject)Instantiate(cube.GameObject, cubePos, Quaternion.identity);
+		}
+		Vector3 floorPos = new Vector3(cubePos.x, cubePos.y - 1.5f, cubePos.z);
+		if (ActiveFloorCursor == DeleteObject) {
+			// Remove object at cursor
+			ShipObject cube = playerShipDeck.RemoveFloor(cellPos);
+			if (cube != null) {
+				Destroy(cube.Instance);
+			}
+		} else if (ActiveFloorCursor != null) {
+			// Remove previous objects at cursor
+			ShipObject cube = playerShipDeck.RemoveFloor(cellPos);
+			if (cube != null) {
+				Destroy(cube.Instance);
+			}
+			// Add object at cursor
+			cube = playerShipDeck.SetFloor(cellPos, floorPos, ActiveFloorCursor);
+			cube.Instance = (GameObject)Instantiate(cube.GameObject, floorPos, Quaternion.identity);
+		}
+	}
+	
+	void DrawCursor(Vector2 pos) {
+		// Draw cursor
+		if (cursor != null) {
+			cursor.transform.position = new Vector3(Mathf.Round(pos.x), 0.01f, Mathf.Round(pos.y));
+		}
+		if (floorCursor != null) {
+			floorCursor.transform.position = new Vector3(Mathf.Round(pos.x), -1.49f, Mathf.Round(pos.y));
 		}
 	}
 	
