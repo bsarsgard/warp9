@@ -13,13 +13,17 @@ public class ShipObject {
 	public ShipObject(GameObject gameObject, Vector3 position) {
 		this.GameObject = gameObject;
 		this.Position = position;
-	}
+	} 
+}
+
+public class ShipFeature: ShipObject {
+	public ShipFeature ParentFeature { get; set; }
+	public Vector3 EulerAngles { get; set; }
 }
 
 public class ShipCell {
 	public ShipObject Floor { get; set; }
-	public ShipObject Wall { get; set; }
-	public List<ShipObject> Features { get; set; }
+	public ShipObject Feature { get; set; }
 }
 
 public class ShipDeck {
@@ -29,42 +33,23 @@ public class ShipDeck {
 		Cells = new Dictionary<Vector2, ShipCell>();
 	}
 	
-	/*
-	public ShipObject AddObject(Vector3 position, GameObject gameObject) {
-		ShipObject cube = new ShipObject(gameObject);
-		Objects.Add(position, cube);
-		return cube;
-	}
-	
-	public ShipObject RemoveObject(Vector3 position) {
-		ShipObject cube = null;
-		if (Objects.ContainsKey(position)) {
-			cube = Objects[position];
-		}
-		if (cube != null) {
-			Objects.Remove(position);
-		}
-		return cube;
-	}
-	*/
-	
 	public ShipObject RemoveFloor(Vector2 position) {
 		ShipObject obj = null;
 		if (Cells.ContainsKey(position)) {
 			obj = Cells[position].Floor;
 			Cells[position].Floor = null;
-			if (Cells[position].Wall == null) {
+			if (Cells[position].Feature == null) {
 				Cells.Remove(position);
 			}
 		}
 		return obj;
 	}
 	
-	public ShipObject RemoveWall(Vector2 position) {
+	public ShipObject RemoveFeature(Vector2 position) {
 		ShipObject obj = null;
 		if (Cells.ContainsKey(position)) {
-			obj = Cells[position].Wall;
-			Cells[position].Wall = null;
+			obj = Cells[position].Feature;
+			Cells[position].Feature = null;
 			if (Cells[position].Floor == null) {
 				Cells.Remove(position);
 			}
@@ -83,12 +68,12 @@ public class ShipDeck {
 		return obj;
 	}
 	
-	public ShipObject SetWall(Vector2 cellPos, Vector3 objectPos, GameObject gameObject) {
+	public ShipObject SetFeature(Vector2 cellPos, Vector3 objectPos, GameObject gameObject) {
 		ShipObject obj = new ShipObject(gameObject, objectPos);
 		if (Cells.ContainsKey(cellPos)) {
-			Cells[cellPos].Wall = obj;
+			Cells[cellPos].Feature = obj;
 		} else {
-			ShipCell cell = new ShipCell() { Wall = obj };
+			ShipCell cell = new ShipCell() { Feature = obj };
 			Cells.Add(cellPos, cell);
 		}
 		return obj;
@@ -117,21 +102,26 @@ public class SerializedObject {
 public class Ship {
 	public List<ShipDeck> Decks;
 	
-	public GameObject FloorObject { get; set; }
-	public GameObject WallObject { get; set; }
-	public GameObject HullObject { get; set; }
+	public GameObject BedObject { get; set; }
+	public GameObject ConsoleObject { get; set; }
+	public GameObject DoorObject { get; set; }
+	public GameObject EngineObject { get; set; }
+	public GameObject LifeSupportObject { get; set; }
+	public GameObject ReactorObject { get; set; }
+	public GameObject WeaponSystemObject { get; set; }
+	
+	public GameObject AtmosphereObject { get; set; }
 	public GameObject BridgeObject { get; set; }
 	public GameObject EngineeringObject { get; set; }
+	public GameObject FloorObject { get; set; }
+	public GameObject QuartersObject { get; set; }
+	public GameObject ReactorRoomObject { get; set; }
+	public GameObject TacticalObject { get; set; }
+	
+	public GameObject WallObject { get; set; }
+	public GameObject HullObject { get; set; }
 	
 	public Ship() {
-	}
-	
-	public Ship(GameObject floorObject, GameObject hullObject, GameObject wallObject, GameObject bridgeObject, GameObject engineeringObject) {
-		FloorObject = floorObject;
-		HullObject = hullObject;
-		WallObject = wallObject;
-		BridgeObject = bridgeObject;
-		EngineeringObject = engineeringObject;
 	}
 	
 	public void Build() {
@@ -142,21 +132,14 @@ public class Ship {
 	public SerializedShip Save() {
 		List<SerializedCell> allCells = new List<SerializedCell>();
 		for (int ii = 0; ii < Decks.Count; ii++) {
-			/*
-			foreach (Vector3 key in Decks[ii].Objects.Keys) {
-				ShipObject sc = Decks[ii].Objects[key];
-				SerializedObject cube = new SerializedObject() { Deck = ii, GameObject = sc.GameObject.ToString(), x = key.x, y = key.y, z = key.z };
-				allObjects.Add(cube);
-			}
-			*/
 			foreach (Vector2 key in Decks[ii].Cells.Keys) {
 				ShipCell cell = Decks[ii].Cells[key];
 				SerializedCell sc = new SerializedCell() { Deck = ii, x = key.x, y = key.y };
 				if (cell.Floor != null) {
 					sc.Floor = new SerializedObject() { GameObject = cell.Floor.GameObject.ToString(), x = cell.Floor.Position.x, y = cell.Floor.Position.y, z = cell.Floor.Position.z };
 				}
-				if (cell.Wall != null) {
-					sc.Wall = new SerializedObject() { GameObject = cell.Wall.GameObject.ToString(), x = cell.Wall.Position.x, y = cell.Wall.Position.y, z = cell.Wall.Position.z };
+				if (cell.Feature != null) {
+					sc.Wall = new SerializedObject() { GameObject = cell.Feature.GameObject.ToString(), x = cell.Feature.Position.x, y = cell.Feature.Position.y, z = cell.Feature.Position.z };
 				}
 				allCells.Add(sc);
 			}
@@ -167,20 +150,53 @@ public class Ship {
 	private GameObject GetObject(string objectString) {
 		GameObject obj = null;
 		switch (objectString) {
-		case "Floor (UnityEngine.GameObject)":
-			obj = FloorObject;
-			break;
 		case "Hull (UnityEngine.GameObject)":
 			obj = HullObject;
 			break;
 		case "Wall (UnityEngine.GameObject)":
 			obj = WallObject;
 			break;
+		case "Bed (UnityEngine.GameObject)":
+			obj = BedObject;
+			break;
+		case "Console (UnityEngine.GameObject)":
+			obj = ConsoleObject;
+			break;
+		case "Door (UnityEngine.GameObject)":
+			obj = DoorObject;
+			break;
+		case "Engine (UnityEngine.GameObject)":
+			obj = EngineObject;
+			break;
+		case "LifeSupport (UnityEngine.GameObject)":
+			obj = LifeSupportObject;
+			break;
+		case "Reactor (UnityEngine.GameObject)":
+			obj = ReactorObject;
+			break;
+		case "WeaponSystem (UnityEngine.GameObject)":
+			obj = WeaponSystemObject;
+			break;
+		case "Atmosphere (UnityEngine.GameObject)":
+			obj = AtmosphereObject;
+			break;
 		case "Bridge (UnityEngine.GameObject)":
 			obj = BridgeObject;
 			break;
 		case "Engineering (UnityEngine.GameObject)":
 			obj = EngineeringObject;
+			break;
+		case "Floor (UnityEngine.GameObject)":
+			obj = FloorObject;
+			break;
+		case "Quarters (UnityEngine.GameObject)":
+			obj = QuartersObject;
+			break;
+		case "ReactorRoom (UnityEngine.GameObject)":
+			obj = ReactorRoomObject;
+			break;
+		case "Tactical (UnityEngine.GameObject)":
+			obj = TacticalObject;
 			break;
 		}
 		
@@ -196,12 +212,17 @@ public class Ship {
 				}
 			}
 			Vector2 pos = new Vector3(cell.x, cell.y);
-			//Decks[cube.Deck].Objects.Add(vector, new ShipObject(obj));
 			if (cell.Floor != null) {
-				Decks[cell.Deck].SetFloor(pos, new Vector3(cell.Floor.x, cell.Floor.y, cell.Floor.z), GetObject(cell.Floor.GameObject));
+				GameObject obj = GetObject(cell.Floor.GameObject);
+				if (obj != null) {
+					Decks[cell.Deck].SetFloor(pos, new Vector3(cell.Floor.x, cell.Floor.y, cell.Floor.z), obj);
+				}
 			}
 			if (cell.Wall != null) {
-				Decks[cell.Deck].SetWall(pos, new Vector3(cell.Wall.x, cell.Wall.y, cell.Wall.z), GetObject(cell.Wall.GameObject));
+				GameObject obj = GetObject(cell.Wall.GameObject);
+				if (obj != null) {
+					Decks[cell.Deck].SetFeature(pos, new Vector3(cell.Wall.x, cell.Wall.y, cell.Wall.z), obj);
+				}
 			}
 		}
 	}
