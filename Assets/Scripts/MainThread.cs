@@ -45,7 +45,7 @@ public class MainThread : MonoBehaviour {
 				}
 				if (value != null) {
 					cursor = (GameObject)Instantiate(value, new Vector3(0, 0, 0), Quaternion.identity);
-					if (value != DeleteWallObject && value != DeleteFloorObject) {
+					if (value != DeleteWallObject && value != DeleteFloorObject && cursor.renderer != null) {
 						cursor.renderer.material.color = new Color(0, 0, 1f, 0.66f);
 					}
 				}
@@ -66,7 +66,7 @@ public class MainThread : MonoBehaviour {
 				}
 				if (value != null) {
 					floorCursor = (GameObject)Instantiate(value, new Vector3(0, 0, 0), Quaternion.identity);
-					if (value != DeleteWallObject && value != DeleteFloorObject) {
+					if (value != DeleteWallObject && value != DeleteFloorObject && floorCursor.renderer != null) {
 						floorCursor.renderer.material.color = new Color(0, 0, 1f, 0.66f);
 					}
 				}
@@ -324,7 +324,7 @@ public class MainThread : MonoBehaviour {
 								if (ActiveCursor != null) {
 									Vector3 key = new Vector3(xx, 0.01f, yy);
 									GameObject obj = (GameObject)Instantiate(ActiveCursor, key, Quaternion.identity);
-									if (ActiveCursor != DeleteWallObject && ActiveCursor) {
+									if (ActiveCursor != DeleteWallObject && ActiveCursor && obj.renderer != null) {
 										obj.renderer.material.color = new Color(0, 0, 1f, 0.66f);
 									}
 									dragCursorObjects[key] = obj;
@@ -332,7 +332,7 @@ public class MainThread : MonoBehaviour {
 								if (ActiveFloorCursor != null) {
 									Vector3 key = new Vector3(xx, -1.49f, yy);
 									GameObject obj = (GameObject)Instantiate(ActiveFloorCursor, key, Quaternion.identity);
-									if (ActiveFloorCursor != DeleteFloorObject) {
+									if (ActiveFloorCursor != DeleteFloorObject && obj.renderer != null) {
 										obj.renderer.material.color = new Color(0, 0, 1f, 0.66f);
 									}
 									dragCursorObjects[key] = obj;
